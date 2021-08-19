@@ -1,15 +1,8 @@
-package com.example.demo.consumer;
+package com.example.demo.mybusiness.producer;
 
-
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
-public class AutoCommitConsumer {
+public class MyConsumer01 {
     private static Properties getProps(){
         Properties props =  new Properties();
         props.put("bootstrap.servers", "127.0.0.1:9092");
@@ -27,24 +20,6 @@ public class AutoCommitConsumer {
         return props;
     }
 
-    public static void main(String[] args) {
-        try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(getProps())) {
-            List<String> topics = new ArrayList<>();
-            topics.add("producer-asyn");
-            consumer.subscribe(topics);
-            // 拉取任务超时时间
-            for(;;){
-                ConsumerRecords<String,String> records = consumer.poll(1000);
-                for(ConsumerRecord consumerRecord : records){
-                    System.out.println("partition:"+consumerRecord.partition());
-                    System.out.println("offset:"+consumerRecord.offset());
-                    System.out.println("key:"+consumerRecord.key());
-                    System.out.println("value:"+consumerRecord.value());
-                }
-            }
 
-
-        }
-    }
 
 }

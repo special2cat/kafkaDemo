@@ -1,5 +1,6 @@
 package com.example.demo.producer;
 
+import com.example.demo.Constant.TopicName;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
@@ -22,8 +23,8 @@ public class ASynProducer {
 
     public static void main(String[] args) {
         KafkaProducer<String, String> producer = new KafkaProducer<>(getProps());
-        for(int i=0; i< 1000; i++){
-            ProducerRecord<String, String> record = new ProducerRecord<>("producer-asyn", "topic_"+i,"producer-asyn-"+i);
+        for(int i=0; i< 10; i++){
+            ProducerRecord<String, String> record = new ProducerRecord<>(TopicName.TOPIC_SIMPLE_03, "topic_"+i,"producer-asyn-"+i);
             // 相比同步发送，异步发送需要传入callback,发送结果回来回调callback方法
             producer.send(record, (recordMetadata, e) -> {
                 if(e != null){

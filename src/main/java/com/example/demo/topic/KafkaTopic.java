@@ -1,5 +1,6 @@
 package com.example.demo.topic;
 
+import com.example.demo.Constant.TopicName;
 import kafka.admin.AdminUtils;
 import kafka.admin.RackAwareMode;
 import kafka.server.ConfigType;
@@ -28,7 +29,7 @@ public class KafkaTopic {
     private static void createTopic() {
         ZkUtils zkUtils = ZkUtils.apply("127.0.0.1:2181", 30000, 30000, JaasUtils.isZkSecurityEnabled());
         // 创建一个单分区单副本名为t1的topic             //第3个参数分区   //第4：副本
-        AdminUtils.createTopic(zkUtils, "topic-002_", 2, 1, new Properties(), RackAwareMode.Enforced$.MODULE$);
+        AdminUtils.createTopic(zkUtils, TopicName.TOPIC_SIMPLE_03, 4, 1, new Properties(), RackAwareMode.Enforced$.MODULE$);
         zkUtils.close();
     }
 

@@ -9,13 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-/**
- * @author 王柱星
- * @version 1.0
- * @title
- * @time 2018年12月11日
- * @since 1.0
- */
 public class CommitAsynConsumer {
     private static Properties getProps(){
         Properties props =  new Properties();

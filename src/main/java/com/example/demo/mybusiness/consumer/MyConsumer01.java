@@ -1,5 +1,6 @@
 package com.example.demo.mybusiness.consumer;
 
+import com.example.demo.Constant.TopicName;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
@@ -8,7 +9,7 @@ import java.util.Properties;
 public class MyConsumer01 {
     private static Properties getProps(){
         Properties props =  new Properties();
-        props.put("bootstrap.servers", "127.0.0.1:9092");
+        props.put("bootstrap.servers", "localhost:9092");
         //acks参数 详解     1：leader接收成功则算成功（默认）
         //           all -1：leader接收成功，且follower 同步（isr）成功才算成功,否则算失败会重试 （副本需>=2才有实际意义）
         //                0：不用管成功还是失败
@@ -37,13 +38,20 @@ public class MyConsumer01 {
         return props;
     }
 
+    public static void main(String[] args) {
+        sendSingleMsg("only key and value");
+    }
 
-    public void sendSingleMsg(String msg){
-        KafkaProducer<Object, Object> producer = new KafkaProducer<>(getProps());
+    private static String topicSimple01= TopicName.TOPIC_SIMPLE_01;
+
+    public static void sendSingleMsg(String msg){
+        KafkaProducer<String, String> producer = new KafkaProducer<>(getProps());
         for (int i = 0; i < 50; i++) {
-//            ProducerRecord<String, String> record = new ProducerRecord<String, String>();
+            ProducerRecord<String, String> record = new ProducerRecord<String, String>(topicSimple01,i+"",msg+i);
+            producer.send(record);
         }
-
+        producer.flush();
+        producer.close();
     }
 
 
