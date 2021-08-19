@@ -49,19 +49,29 @@ Properties props =  new Properties();
 
 
 | 参数                                                        | 详解                                                         |
-| ----------------------------------------------------------- | ------------------------------------------------------------ |
+| :---------------------------------------------------------- | ------------------------------------------------------------ |
 | group.id                                                    | 需显示指定。                                                 |
-| <font color="red">**session.timeout.ms**</font><br/>默认30s | <font color='red'>**group coordinator**</font> 检测失败的时间，当consumer两次poll的间隔大于这个阈值，消费组协调组就认为这个consumer已经追不上其他成员的消费速度了，就会将这个consumer"踢出"这个组，将该consumer负责的分区分配给其他consumer。<br/><font color='red'>最好</font>的情况下，只是会触发不必要的rebalance。<br/><font color='red'>更坏</font>的情况，被"踢出"后处理的消息不能提交位移，这会导致<font color='red'>重新</font>消费一遍 |
+| <font color="red">**session.timeout.ms**</font><br/>默认10s | <font color='red'>**group coordinator**</font> 检测失败的时间，当这个阈值时间内从未收到consumer的任何消息，消费组协调组就认为这个consumer挂掉了 已经追不上其他成员的消费速度了，就会将这个consumer"踢出"这个组，将该consumer负责的分区分配给其他consumer。<br/><font color='red'>最好</font>的情况下，只是会触发不必要的rebalance。<br/><font color='red'>更坏</font>的情况，被"踢出"后处理的消息不能提交位移，这会导致<font color='red'>重新</font>消费一遍 |
 | max.poll.interval.ms<br/>默认5min，一般设置10s              | 两次poll消息的间隔时间。拉取到消息后，预计处理时间           |
+| heartbeat.interval.ms<br/>默认3s                            | 通过response返回通知group coordinator他还或者，否则"死了"就需要rebalance了，**该值必须小于 session.timeout.ms**,否则没有意义 |
 | max.poll.records<br/>默认500                                | 一次最大拉取消息数量，如果拉太多一次没处理玩，就会触发rebalance |
-| enable.auto.commit                                          |                                                              |
-|                                                             |                                                              |
+| enable.auto.commit                                          | 默认 true                                                    |
+| auto.commit.interval.ms                                     | 默认 5s                                                      |
+| fetch.max.bytes                                             | 指定获取数据的最大字节数                                     |
+| max.poll.records<br/>默认  500                              | 控制单次poll返回最大消息数                                   |
+| connections.max.idle.ms<br/>默认 9min                       | kafka会周期性的删除空闲链接，如果设置为-1则不会删除。        |
 
-> session.timeout.ms和max.poll.interval.ms的**区别**
+> session.timeout.ms(**比另两个参数大才有意义**)和max.poll.interval.ms和heartbeat.interval.ms的**区别**
 >
-> &ensp;&ensp;&ensp;&ensp;session.timeout.ms是要超过这个阈值时间 group coordinate才知道消费者有问题，所以造成消息处理延迟比较长。
+> &ensp;&ensp;&ensp;&ensp;session.timeout.ms是要超过这个阈值时间 group coordinate没有收到consumer的**<font color='red'>任何</font>**信息，就认为consumer挂掉了，因为都挂掉了所以就不用通知consumer需要rebalance了。
 >
-> &ensp;&ensp;&ensp;&ensp;max.poll.interval.ms是每次poll之后处理间隔，如果消费者没有消费完这个数据，说明消费者有问题，就让别的消费者来处理，一般时间间隔会小于session.timeout.ms所以不用等到阈值才rebalance
+> &ensp;&ensp;&ensp;&ensp;max.poll.interval.ms是每次poll之后处理间隔，如果消费者没有消费完这个数据，说明消费者有问题，就让别的消费者来处理，（如果超过了该间隔consumer client会主动向coordinator发起LeaveGroup请求，触发rebalance；然后consumer重新发送JoinGroup请求）。一般时间间隔会小于session.timeout.ms所以不用等到阈值才rebalance
+>
+> &ensp;&ensp;&ensp;&ensp;heartbeat.interval.ms是设置一个时间间隔，consumer需要主动发送一个心跳信息告诉group coordinator 它还活着，间隔越小 发TCP包的数量就越多。**该值必须<font color='red'>小于</font> session.timeout.ms**,否则没有意义。
+>
+> > 因为 session.timeout.ms 的时间间隔到了group coordinator就认为这个consumer已经挂掉了。
+> >
+> > kafka的<font color='red'>处理消息</font>和<font color='red'>心跳机制</font>是两个不同的线程，心跳不用等处理完消息就会给group coordinator通信，相当于session.timeout.ms就会重新计时 ，所以该值必须<font color='red'>小于</font>session.timeout.ms。
 
 ## KafkaProducer
 
