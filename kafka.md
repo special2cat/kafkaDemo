@@ -103,5 +103,4 @@ return props;
 
 ## KafkaConsumer
 
-- consumer的连接问题asd
 - 
