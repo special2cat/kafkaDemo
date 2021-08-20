@@ -6,17 +6,17 @@
 
 ```java
 Properties props =  new Properties();
-        props.put("bootstrap.servers", "127.0.0.1:9092");
-        props.put("acks", "all"); // 发送所有ISR
-        props.put("retries", 2); // 重试次数
-        props.put("batch.size", 1000); // 批量发送大小 单位字节KB
-        props.put("linger.ms", 1000); // 发送频率，满足任务一个条件发送
-        props.put("buffer.memory", 33554432); // 缓存大小，根据本机内存大小配置
-        props.put("client.id", "producer-asyn-1"); // 发送端id,便于统计
-        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+props.put("bootstrap.servers", "127.0.0.1:9092");
+props.put("acks", "all"); // 发送所有ISR
+props.put("retries", 2); // 重试次数
+props.put("batch.size", 1000); // 批量发送大小 单位字节KB
+props.put("linger.ms", 1000); // 发送频率，满足任务一个条件发送
+props.put("buffer.memory", 33554432); // 缓存大小，根据本机内存大小配置
+props.put("client.id", "producer-asyn-1"); // 发送端id,便于统计
+props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 ```
-```
+
 
 | 参数          | 详解                                                         |
 | :------------ | ------------------------------------------------------------ |
@@ -29,21 +29,21 @@ Properties props =  new Properties();
 
 ### consumer
 
-​```java
+```java
 Properties props =  new Properties();
-        props.put("bootstrap.servers", "127.0.0.1:9092");
-        props.put("group.id", "test_3");
-        props.put("session.timeout.ms", 30000); // 如果其超时，将会可能触发rebalance并认为已经死去，重新选举Leader
-        props.put("enable.auto.commit", "true");      // 开启自动提交
-        props.put("auto.commit.interval.ms", "1000"); // 自动提交时间
-        props.put("auto.offset.reset","earliest"); // 从最早的offset开始拉取，latest:从最近的offset开始消费
-        props.put("client.id", "producer-syn-1"); // 发送端id,便于统计
-        props.put("max.poll.records","100"); // 每次批量拉取条数
-        props.put("max.poll.interval.ms","1000");
-        props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-        props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-        props.put("isolation.level","read_committed"); // 设置隔离级别
-        return props;
+props.put("bootstrap.servers", "127.0.0.1:9092");
+props.put("group.id", "test_3");
+props.put("session.timeout.ms", 30000); // 如果其超时，将会可能触发rebalance并认为已经死去，重新选举Leader
+props.put("enable.auto.commit", "true");      // 开启自动提交
+props.put("auto.commit.interval.ms", "1000"); // 自动提交时间
+props.put("auto.offset.reset","earliest"); // 从最早的offset开始拉取，latest:从最近的offset开始消费
+props.put("client.id", "producer-syn-1"); // 发送端id,便于统计
+props.put("max.poll.records","100"); // 每次批量拉取条数
+props.put("max.poll.interval.ms","1000");
+props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+props.put("isolation.level","read_committed"); // 设置隔离级别
+return props;
 ```
 
 
@@ -61,11 +61,13 @@ Properties props =  new Properties();
 | max.poll.records<br/>默认  500                              | 控制单次poll返回最大消息数                                   |
 | connections.max.idle.ms<br/>默认 9min                       | kafka会周期性的删除空闲链接，如果设置为-1则不会删除。        |
 
-> session.timeout.ms(**比另两个参数大才有意义**)和max.poll.interval.ms和heartbeat.interval.ms的**区别**
+> session.timeout.ms和max.poll.interval.ms和heartbeat.interval.ms的**区别**
 >
-> &ensp;&ensp;&ensp;&ensp;session.timeout.ms是要超过这个阈值时间 group coordinate没有收到consumer的**<font color='red'>任何</font>**信息，就认为consumer挂掉了，因为都挂掉了所以就不用通知consumer需要rebalance了。
+> &ensp;&ensp;&ensp;&ensp;session.timeout.ms是要超过这个阈值时间 group coordinate没有收到consumer的**<font color='red'>任何</font>**信息，就认为consumer挂掉了，因为都挂掉了所以就不用吧rebalance的信息返回给该consumer了。
 >
-> &ensp;&ensp;&ensp;&ensp;max.poll.interval.ms是每次poll之后处理间隔，如果消费者没有消费完这个数据，说明消费者有问题，就让别的消费者来处理，（如果超过了该间隔consumer client会主动向coordinator发起LeaveGroup请求，触发rebalance；然后consumer重新发送JoinGroup请求）。一般时间间隔会小于session.timeout.ms所以不用等到阈值才rebalance
+> &ensp;&ensp;&ensp;&ensp;max.poll.interval.ms是每次poll之后处理间隔，如果消费者没有消费完这个数据，说明消费者有问题，就让别的消费者来处理，（如果超过了该间隔consumer client会主动向coordinator发起LeaveGroup请求，触发rebalance；然后consumer重新发送JoinGroup请求）。
+>
+> > 一般时间间隔会小于session.timeout.ms所以不用等到阈值才rebalance
 >
 > &ensp;&ensp;&ensp;&ensp;heartbeat.interval.ms是设置一个时间间隔，consumer需要主动发送一个心跳信息告诉group coordinator 它还活着，间隔越小 发TCP包的数量就越多。**该值必须<font color='red'>小于</font> session.timeout.ms**,否则没有意义。
 >
@@ -86,7 +88,7 @@ Properties props =  new Properties();
 - 之后发送数据，会再次创建和所有broker的TCP连接
 - connections.max.idle.ms参数设置多长时间没有流过此TCP连接，此链接就会被关闭，默认9min。设置为-1则关闭成为永久"长连接"（kafka会有探活机制keepalive）
 
-### producer的缓存问题
+### producer的缓存机制
 
 - kafkaProduce会创建一个BufferPool，BufferPool再分割成一个一个的内存快，内存块的大小等于batch.size。通过将多个消息收集成一个batch，再把多个batch收集成一个request发送到broker来提高吞吐量。
 
@@ -94,3 +96,12 @@ Properties props =  new Properties();
 
   [深度剖析 Kafka Producer 的缓冲池机制【图解 + 源码分析】](https://mp.weixin.qq.com/s/P6BO5KoMl_NQAI_OcwnXrQ)
 
+
+```
+
+```
+
+## KafkaConsumer
+
+- consumer的连接问题asd
+- 

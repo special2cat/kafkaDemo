@@ -29,7 +29,7 @@ public class KafkaTopic {
     private static void createTopic() {
         ZkUtils zkUtils = ZkUtils.apply("127.0.0.1:2181", 30000, 30000, JaasUtils.isZkSecurityEnabled());
         // 创建一个单分区单副本名为t1的topic             //第3个参数分区   //第4：副本
-        AdminUtils.createTopic(zkUtils, TopicName.TOPIC_SIMPLE_03, 4, 1, new Properties(), RackAwareMode.Enforced$.MODULE$);
+        AdminUtils.createTopic(zkUtils, TopicName.TOPIC_SIMPLE_01, 2, 1, new Properties(), RackAwareMode.Enforced$.MODULE$);
         zkUtils.close();
     }
 
@@ -40,7 +40,7 @@ public class KafkaTopic {
     private static void deleteTopic() {
         ZkUtils zkUtils = ZkUtils.apply("127.0.0.1:2181", 30000, 30000, JaasUtils.isZkSecurityEnabled());
         // 删除topic 't1'
-        AdminUtils.deleteTopic(zkUtils, "topic-19");
+        AdminUtils.deleteTopic(zkUtils, TopicName.TOPIC_SIMPLE_01);
         zkUtils.close();
     }
 
